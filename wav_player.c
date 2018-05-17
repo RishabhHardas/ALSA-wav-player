@@ -3,20 +3,25 @@
 
 #define PCM_DEVICE "default"
 
+#define RATE	44100
+#define CHANNELS 1
+#define SECONDS	3
+
 int main(int argc, char *argv[])
 {
-	unsigned int result, temp;
-	snd_pcm_t *pcm_handle;
-	snd_pcm_hw_params_t *hw_params;
-	snd_pcm_uframes_t period;
+	int result = 0;
+	unsigned int temp = 0;
+	snd_pcm_t *pcm_handle = NULL;
+	snd_pcm_hw_params_t *hw_params = NULL;
+	snd_pcm_uframes_t period = 0;
 
 	int rate, channels, seconds;
 	int buff_size, loops;
 	char *buff;
 
-	rate = 44100;
-	channels = 1;
-	seconds = 3;
+	rate = RATE;
+	channels = CHANNELS;
+	seconds = SECONDS;
 
 	//Open PCM_DEVICE for playback
 	result = snd_pcm_open(&pcm_handle, PCM_DEVICE, SND_PCM_STREAM_PLAYBACK, 0);
@@ -93,10 +98,12 @@ int main(int argc, char *argv[])
 	snd_pcm_hw_params_get_period_time(hw_params, &temp, NULL);
 
 	system("amixer sset PCM,0 100%");
+
 	for (loops = (seconds * 1000000) / temp; loops > 0; loops--) {
 		result = read(0, buff, buff_size);
 		if (result == 0) {
 			printf("Early EOF\n");
+			free(buff);
 			return 0;
 		}
 
